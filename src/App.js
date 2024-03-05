@@ -12,7 +12,7 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="login" element={<Login />} />
+        <Route path="/" element={<Login />} exact/>
         <Route path="register" element={<Register />} />
 
         <Route element={<PrivateRoutes />}>

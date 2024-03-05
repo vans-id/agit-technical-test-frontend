@@ -5,27 +5,29 @@ import { useAuth } from '../context/AuthContext';
 const Employees = () => {
   const { token, logout } = useAuth();
   const [data, setData] = useState([])
+  const [query, setQuery] = useState('')
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/employees${query ? `?search=${query}` : ''}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setData(result.data);
+      } else {
+        console.error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('http://localhost:8080/employees', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const result = await response.json();
-          setData(result.data);
-        } else {
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
     fetchData();
   }, [])
 
@@ -60,6 +62,15 @@ const Employees = () => {
       <Link to={`/employee`} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4">
         Add
       </Link>
+      <input
+        type="text"
+        onChange={(e) => setQuery(e.target.value)}
+        className={`border rounded w-50 py-2 px-3`}
+        placeholder='Search employee name...'
+      />
+      <button onClick={fetchData} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4">
+        Search
+      </button>
       <div className="flex flex-col justify-center pt-10">
         <div className="w-full max-w-2xl mx-auto bg-white shadow-lg rounded-sm border border-gray-200">
           <header className="px-5 py-4 border-b border-gray-100">
