@@ -2,21 +2,51 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from "react-router-dom";
 
 const Add = () => {
   const { handleSubmit, control, register, setValue, watch } = useForm();
+  const { token } = useAuth();
+  let navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    data.religion = parseInt(data.religion, 10);
+    data.gender = parseInt(data.gender, 10);
+
+    try {
+      const response = await fetch('http://localhost:8080/employees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Login failed');
+      }
+
+      const res = await response.json();
+      if (!res.data) {
+        throw new Error('Login failed');
+      }
+      alert('Successfully added employee.');
+      navigate("/employees");
+    } catch (error) {
+      console.error('Login error:', error.message);
+      alert('Fail to add employee...');
+    }
   };
 
   const handleDateChange = (date) => {
-    setValue('tanggal_lahir', date.toISOString().split('T')[0]);
+    setValue('date_of_birth', date.toISOString().split('T')[0]);
   };
 
   const umur =
     new Date().getFullYear() -
-    (watch('tanggal_lahir') ? parseInt(watch('tanggal_lahir').substring(0, 4)) : 0);
+    (watch('date_of_birth') ? parseInt(watch('date_of_birth').substring(0, 4)) : 0);
 
   return (
     <div className="max-w-md mx-auto mt-8 px-8 py-4 bg-white shadow-md">
@@ -41,7 +71,7 @@ const Add = () => {
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600">Phone Number</label>
           <input
-            {...register('phone_number')}
+            {...register('phone')}
             type="text"
             className="mt-1 p-2 w-full border rounded-md"
           />
@@ -50,7 +80,7 @@ const Add = () => {
           <label className="block text-sm font-medium text-gray-600">Email</label>
           <input
             {...register('email')}
-            type="text"
+            type="email"
             className="mt-1 p-2 w-full border rounded-md"
           />
         </div>
@@ -58,7 +88,7 @@ const Add = () => {
           <label className="block text-sm font-medium text-gray-600">Place of Birth</label>
           <input
             {...register('place_of_birth')}
-            type="email"
+            type="text"
             className="mt-1 p-2 w-full border rounded-md"
           />
         </div>

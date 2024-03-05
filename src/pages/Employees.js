@@ -28,6 +28,28 @@ const Employees = () => {
     };
     fetchData();
   }, [])
+
+  const onDelete = (id) => {
+    const deleteData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/employees/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          console.error('Failed to delete data');
+        } 
+      } catch (error) {
+        console.error('Error deleting data:', error);
+      }
+    };
+    deleteData();
+    const updatedData = data.filter((employee) => employee.id !== id);
+    setData(updatedData);
+  }
   
 
   return (
@@ -35,11 +57,15 @@ const Employees = () => {
       <button onClick={logout} className="bg-red-300 hover:bg-red-400 text-gray-800 font-bold py-2 px-4">
         Logout
       </button>
+      <Link to={`/employee`} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4">
+        Add
+      </Link>
       <div className="flex flex-col justify-center pt-10">
         <div className="w-full max-w-2xl mx-auto bg-white shadow-lg rounded-sm border border-gray-200">
           <header className="px-5 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-800">Customers</h2>
+            <h2 className="font-semibold text-gray-800">Employees</h2>
           </header>
+          
           <div className="p-3">
             <div className="overflow-x-auto">
               <table className="table-auto w-full">
@@ -71,14 +97,14 @@ const Employees = () => {
                         <div className="text-left">{item.name}</div>
                       </td>
                       <td className="p-2 whitespace-nowrap">
-                        <div className="text-left font-medium text-green-500">{item.email}</div>
+                        <div className="text-left">{item.email}</div>
                       </td>
                       <td className="p-2 whitespace-nowrap">
                         <div className="inline-flex">
-                          <Link to={`/detail/${item.id}`} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
+                          <Link to={`/employees/${item.id}`} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">
                             Detail
                           </Link>
-                          <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
+                          <button onClick={() => onDelete(item.id)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-r">
                             Delete
                           </button>
                         </div>
